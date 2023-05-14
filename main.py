@@ -97,25 +97,24 @@ def add_phone(conn):
 # Изменить данные о клиенте
 def change_client(conn):
     choice_id()
-    client_id = input('Введите id клиента: ')
-    new_data = input('Введите новые данные клиента через пробел: ').split()
-    first_name = new_data[0]
-    last_name = new_data[1]
-    email = new_data[2]
-    phone = int(new_data[3])
+    client_id = input('Введите id клиента, данные которого хотите изменить: ')
+    first_name = input('Введите имя: ')
+    last_name = input('Введите фамилию: ')
+    email = input('Введите email: ')
+    phone = input('Введите номер телефона: ')
     with conn.cursor() as cur:
         cur.execute('''
         UPDATE client
         SET first_name=%s, last_name=%s, email=%s
         WHERE client_id=%s
-        ;''', (first_name, last_name, email, client_id,))
+        ;''', (first_name, last_name, email, int(client_id)))
 
-    with conn.cursor() as cur:
-        cur.execute('''
-        UPDATE client_phone
-        SET phone=%s
-        WHERE client_id=%s
-        ;''', (phone, client_id,))
+    if phone != '':
+        with conn.cursor() as cur:
+            cur.execute(f'''
+            INSERT INTO client_phone(client_id, phone)
+            VALUES ({int(client_id)}, {int(phone)})
+            ;''')
 
     print(f'Данные для клиента id-{client_id} обновлены.')
 
