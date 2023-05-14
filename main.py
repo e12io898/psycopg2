@@ -1,5 +1,20 @@
 import psycopg2
 
+help = '''
+    Программа для управления базой данных клиентами.
+    Команды:
+    ad - добавить нового клиента;
+    ap - добавить телефон существующему клиенту;
+    сс - изменить данные о клиенте;
+    dp - удалить телефон из базы данных;
+    dc - удалить клиента из базы данных;
+    fc - найти клиента по имени, фамилии, email или телефону;
+    ds - показать всю базу данных клиентов;
+    h  - показать список команд;
+    q  - выход из программы.
+
+'''
+
 # Создание базы данных
 def create_db(conn):
     with conn.cursor() as cur:
@@ -21,10 +36,10 @@ def create_db(conn):
 
 # Добавление нового клиента
 def add_client(conn):
-    print('Введите данные нового клиента.\n'
-          'Имя, фамилия и email - обязательные данные.\n'
-          'Если телефона нет, пропустите данный запрос.\n'
-          '--------------------------------------------')
+    print('''Введите данные нового клиента.
+             Имя, фамилия и email - обязательные данные.
+             Если телефона нет, пропустите данный запрос.
+             --------------------------------------------''')
 
     first_name = input('Введите имя: ')
     last_name = input('Введите фамилию: ')
@@ -50,9 +65,10 @@ def add_client(conn):
 def db_show(conn):
     with conn.cursor() as cur:
         cur.execute('''
-        SELECT c.client_id, first_name, last_name, email, phone
+        SELECT c.client_id, last_name, first_name, email, phone
         FROM client c
         JOIN client_phone cp ON c.client_id = cp.client_id
+        ORDER BY last_name
         ;''')
         print(* cur.fetchall(), sep='\n')
 
@@ -168,17 +184,31 @@ def find_client(conn):
             ;''', (data,))
             print(*cur.fetchall(), sep='\n')
 
+# Словарь с функциями.
+func = {
+    'ad': add_client,
+    'ap': add_phone,
+    'cc': change_client,
+    'dp': delete_phone,
+    'dc': delete_client,
+    'fc': find_client,
+    'ds': db_show
+}
+
+if __name__ == '__main__':
+    print(help)
+    command = input('Введите команду: ')
+    with psycopg2.connect(database="clients_db", user="postgres",
+                          password='123456') as conn:
+        create_db(conn)
+        while command != 'q':
+            if command == 'h':
+                print(help)
+                command = input('Введите новую команду: ')
+            else:
+                func[command](conn)
+                command = input('Введите новую команду: ')
+
+    conn.close()
 
 
-with psycopg2.connect(database="clients_db", user="postgres",
-                      password=input('Введите пароль: ')) as conn:
-    # create_db(conn)
-    # add_client(conn)
-    # add_phone(conn)
-    # db_show(conn)
-    # delete_phone(conn)
-    # delete_client(conn)
-    # find_client(conn)
-    change_client(conn)
-
-conn.close()
