@@ -142,7 +142,7 @@ def delete_client(conn):
         SELECT first_name, last_name
         FROM client
         WHERE client_id=%s
-        ;''', (client_id,))
+        ;''', (int(client_id),))
 
         info = cur.fetchone()
 
@@ -150,12 +150,12 @@ def delete_client(conn):
         cur.execute('''
         DELETE FROM client_phone
         WHERE client_id=%s
-        ;''', (client_id,))
+        ;''', (int(client_id),))
 
         cur.execute('''
         DELETE FROM client
         WHERE client_id=%s
-        ;''', (client_id,))
+        ;''', (int(client_id),))
 
     print(f'Клиент {info[0]} {info[1]} удалён из базы данных.')
 
@@ -201,12 +201,14 @@ if __name__ == '__main__':
     with psycopg2.connect(database="clients_db", user="postgres",
                           password='123456') as conn:
         create_db(conn)
+        conn.commit()
         while command != 'q':
             if command == 'h':
                 print(help)
                 command = input('Введите новую команду: ')
             else:
                 func[command](conn)
+                conn.commit()
                 command = input('Введите новую команду: ')
 
     conn.close()
