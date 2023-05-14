@@ -1,4 +1,5 @@
 import psycopg2
+from prettytable import PrettyTable
 
 help = '''
     Программа для управления базой данных клиентами.
@@ -13,7 +14,7 @@ help = '''
     h  - показать список команд;
     q  - выход из программы.
 
-'''
+    '''
 
 # Создание базы данных
 def create_db(conn):
@@ -70,7 +71,12 @@ def db_show(conn):
         JOIN client_phone cp ON c.client_id = cp.client_id
         ORDER BY last_name
         ;''')
-        print(* cur.fetchall(), sep='\n')
+        return_db = cur.fetchall()
+        table = PrettyTable(['client_id', 'last_name',
+                             'first_name', 'email', 'phone'])
+        for i in return_db:
+            table.add_row(list(i))
+        print(table)
 
 
 # Выбор id-а клиента
@@ -165,23 +171,33 @@ def find_client(conn):
     if data.isalpha():
         with conn.cursor() as cur:
             cur.execute('''
-            SELECT c.client_id, first_name, last_name, email, phone
+            SELECT c.client_id, last_name, first_name, email, phone
             FROM client c
             JOIN client_phone cp ON c.client_id = cp.client_id
             WHERE first_name=%s
             OR last_name=%s
             OR email=%s
             ;''', (data, data, data))
-            print(*cur.fetchall(), sep='\n')
+            return_db = cur.fetchall()
+            table = PrettyTable(['client_id', 'last_name',
+                                 'first_name', 'email', 'phone'])
+            for i in return_db:
+                table.add_row(list(i))
+            print(table)
     else:
         with conn.cursor() as cur:
             cur.execute('''
-            SELECT c.client_id, first_name, last_name, email, phone
+            SELECT c.client_id, last_name, first_name, email, phone
             FROM client c
             JOIN client_phone cp ON c.client_id = cp.client_id
             WHERE phone=%s
             ;''', (data,))
-            print(*cur.fetchall(), sep='\n')
+            return_db = cur.fetchall()
+            table = PrettyTable(['client_id', 'last_name',
+                                 'first_name', 'email', 'phone'])
+            for i in return_db:
+                table.add_row(list(i))
+            print(table)
 
 # Словарь с функциями.
 func = {
