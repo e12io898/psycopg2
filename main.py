@@ -98,7 +98,7 @@ def add_phone(conn):
 def change_client(conn):
     choice_id()
     client_id = input('Введите id клиента: ')
-    new_data = input('Введите новые данные клиента через пробел: )').split()
+    new_data = input('Введите новые данные клиента через пробел: ').split()
     first_name = new_data[0]
     last_name = new_data[1]
     email = new_data[2]
